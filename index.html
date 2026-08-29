@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2b6f73">
+  <meta name="description" content="ことわざ・慣用句・四字熟語の意味と使う場面を学ぶ小学生向け学習アプリ">
+  <title>ことばのしるべ ― ことわざ・慣用句・四字熟語 ―</title>
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-effects.css">
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-learning.css">
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-feedback.css">
+  <link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-effects-library.css">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">学習画面へ移動</a>
+  <main id="main-content" class="app-shell">
+    <section id="home-screen" class="screen home-screen" aria-labelledby="app-title">
+      <div class="home-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">意味を知る。場面とつなぐ。自分のことばにする。</p>
+          <h1 id="app-title"><span>ことばのしるべ</span><small>ことわざ・慣用句・四字熟語</small></h1>
+          <p class="hero-lead">聞いたことのあることばを、<br><strong>「どんなときに使う？」</strong>まで分かることばへ。</p>
+          <div class="hero-actions">
+            <button id="hero-start" class="primary-button" type="button">ことばを選んで学ぶ <span aria-hidden="true">→</span></button>
+            <button id="hero-review" class="secondary-button" type="button">もういちど <span id="review-count">0</span>語</button>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-orbit orbit-one">意味</div>
+          <div class="hero-orbit orbit-two">場面</div>
+          <div class="hero-orbit orbit-three">使う</div>
+          <img class="hero-character" src="https://tt-sensei.github.io/navi-character-/assets/web/groups/daily/group-daily-study.webp" alt="" width="420" height="300">
+        </div>
+      </div>
+
+      <section class="today-card" aria-labelledby="today-title">
+        <div class="today-label"><span class="today-dot"></span><span id="today-title">今日のことば</span></div>
+        <div class="today-body">
+          <div><p id="today-word" class="today-word"></p><p id="today-meaning" class="today-meaning"></p></div>
+          <button id="today-open" class="round-arrow" type="button" aria-label="今日のことばを詳しく見る">→</button>
+        </div>
+      </section>
+
+      <section class="home-section" aria-labelledby="genre-title">
+        <div class="section-heading"><p class="section-kicker">STEP 1</p><h2 id="genre-title">学ぶことばを選ぼう</h2><p>3つのジャンルから、気になることばを見つけよう。</p></div>
+        <div id="home-genres" class="genre-grid"></div>
+      </section>
+
+      <section class="home-section lower-section" aria-labelledby="home-tools-title">
+        <div class="section-heading"><p class="section-kicker">学んだあとに</p><h2 id="home-tools-title">ことばを育てよう</h2></div>
+        <div class="home-tools">
+          <button id="home-book" class="tool-card" type="button"><span class="tool-icon">▤</span><span><strong>わたしのことば帳</strong><small>学んだことばを見返す</small></span><span class="tool-arrow">→</span></button>
+          <div class="mini-achievement"><div><span class="section-kicker">理解したことば</span><strong id="home-master-count">0</strong><span>語</span></div><p>意味・場面・使い方がつながったことば</p></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="genre-screen" class="screen" aria-labelledby="genre-screen-title" hidden>
+      <header class="sub-header">
+        <button class="icon-button" type="button" data-back="home" aria-label="ホームへ戻る">←</button>
+        <div><p class="section-kicker">STEP 2</p><h2 id="genre-screen-title">ジャンルを選ぶ</h2></div>
+        <button class="header-book-button" type="button" data-screen="book">ことば帳</button>
+      </header>
+      <div id="genre-summary" class="genre-summary"></div>
+      <div class="mode-layout">
+        <div>
+          <div class="section-heading compact"><p class="section-kicker">学び方</p><h3>何をしてみる？</h3><p>まずは「ことばを知る」から始めても大丈夫です。</p></div>
+          <div id="mode-grid" class="mode-grid"></div>
+        </div>
+        <aside class="difficulty-panel" aria-labelledby="difficulty-title">
+          <h3 id="difficulty-title">むずかしさ</h3>
+          <div id="difficulty-list" class="difficulty-list"></div>
+          <p class="difficulty-note">言葉の難しさで分けています。学年は固定していません。</p>
+        </aside>
+      </div>
+      <button id="genre-review" class="review-banner" type="button"><span class="review-banner-icon">↻</span><span><strong>このジャンルの「もういちど」</strong><small id="genre-review-text">間違えたことばを別の角度から確かめよう</small></span><span>→</span></button>
+    </section>
+
+    <section id="learn-screen" class="screen" aria-labelledby="learn-title" hidden>
+      <header class="sub-header">
+        <button class="icon-button" type="button" data-back="genre" aria-label="ジャンル選択へ戻る">←</button>
+        <div><p id="learn-genre-label" class="section-kicker">ことばを知る</p><h2 id="learn-title">ことばカード</h2></div>
+        <span id="learn-count" class="header-count">1 / 5</span>
+      </header>
+      <div class="learn-layout">
+        <article id="word-card" class="word-card">
+          <div class="word-card-top"><span id="learn-category" class="category-pill"></span><span id="learn-difficulty" class="difficulty-pill"></span></div>
+          <h3 id="learn-word" class="word-display"></h3>
+          <p id="learn-reading" class="word-reading"></p>
+          <div class="meaning-block"><span>やさしい意味</span><p id="learn-meaning"></p></div>
+          <div class="card-info-grid"><div><span>使う場面</span><p id="learn-scene"></p></div><div><span>ひとこと解説</span><p id="learn-note"></p></div></div>
+          <div class="example-block"><span>例文</span><p id="learn-example"></p></div>
+        </article>
+        <aside class="learn-side">
+          <div class="learn-guide"><img src="https://tt-sensei.github.io/navi-character-/assets/web/characters/kai/fullbody/thinking.webp" alt="" width="96" height="96"><p>ことばを読んだら、<strong>どんな場面で使うか</strong>を思い浮かべてみよう。</p></div>
+          <button id="learn-understood" class="primary-button full-button" type="button">意味をつかんだ！ <span>→</span></button>
+          <div class="learn-nav"><button id="learn-prev" class="secondary-button" type="button">← 前のことば</button><button id="learn-next" class="secondary-button" type="button">次のことば →</button></div>
+          <button id="learn-quiz" class="text-button" type="button">このジャンルのクイズへ</button>
+        </aside>
+      </div>
+    </section>
+
+    <section id="quiz-screen" class="screen" aria-labelledby="quiz-title" hidden>
+      <header class="game-header">
+        <button class="icon-button" type="button" data-back="genre" aria-label="ジャンル選択へ戻る">←</button>
+        <div class="game-meta"><p id="quiz-mode-label">意味クイズ</p><div class="progress-line" aria-label="問題の進み具合"><span id="quiz-progress-fill"></span></div></div>
+        <div class="game-status"><strong id="quiz-count">1 / 10</strong><span id="quiz-combo">0 COMBO</span></div>
+      </header>
+      <div class="quiz-workspace">
+        <div class="quiz-question">
+          <p id="quiz-kind" class="question-kind">意味を選ぼう</p>
+          <p id="quiz-scene" class="quiz-scene"></p>
+          <h2 id="quiz-title" class="quiz-title"></h2>
+          <p id="quiz-hint" class="quiz-hint"></p>
+        </div>
+        <div id="answer-area" class="answer-area" aria-label="答えを選ぶ"></div>
+        <section id="feedback-panel" class="feedback-panel" hidden aria-live="polite">
+          <div class="feedback-character-wrap"><img id="feedback-character" src="https://tt-sensei.github.io/navi-character-/assets/web/characters/riku/fullbody/correct.webp" alt="" width="76" height="76"></div>
+          <div class="feedback-copy"><h3 id="feedback-title"></h3><p id="feedback-answer"></p><p id="feedback-explanation"></p></div>
+          <button id="next-question" class="primary-button" type="button">次へ <span>→</span></button>
+        </section>
+      </div>
+      <button id="quiz-help" class="help-button" type="button">？ ヒントを見る</button>
+    </section>
+
+    <section id="result-screen" class="screen" aria-labelledby="result-title" hidden>
+      <div class="result-card">
+        <img class="result-character" src="https://tt-sensei.github.io/navi-character-/assets/web/characters/sora/fullbody/complete.webp" alt="" width="140" height="140">
+        <p class="section-kicker">学びのふりかえり</p><h2 id="result-title">今回のことば</h2>
+        <div class="result-score"><strong id="result-score">0</strong><span> / 10問</span></div>
+        <div id="result-message" class="result-message"></div>
+        <div class="result-growth"><div><span>新しく意味が分かったことば</span><strong id="result-meaning-count">0</strong></div><div><span>場面まで分かったことば</span><strong id="result-scene-count">0</strong></div><div><span>もう一度たしかめたいことば</span><strong id="result-review-count">0</strong></div></div>
+        <div id="result-badge" class="result-badge" hidden></div>
+        <div class="result-actions"><button id="result-retry" class="primary-button" type="button">もう一度たしかめる</button><button id="result-book" class="secondary-button" type="button">ことば帳を見る</button><button class="text-button" type="button" data-screen="home">ホームへ戻る</button></div>
+      </div>
+    </section>
+
+    <section id="book-screen" class="screen" aria-labelledby="book-title" hidden>
+      <header class="sub-header">
+        <button class="icon-button" type="button" data-back="home" aria-label="ホームへ戻る">←</button>
+        <div><p class="section-kicker">学んだことばを見返そう</p><h2 id="book-title">わたしのことば帳</h2></div>
+        <span id="book-total" class="header-count">0 / 90語</span>
+      </header>
+      <div class="book-progress"><div><strong id="book-mastered">0</strong><span>語理解</span></div><div class="book-progress-bar"><span id="book-progress-fill"></span></div><p>意味・場面・使い方がつながったことば</p></div>
+      <div id="book-filters" class="book-filters" role="tablist" aria-label="ことば帳の絞り込み"></div>
+      <div id="book-grid" class="book-grid"></div>
+      <div id="book-detail" class="book-detail" hidden><div class="book-detail-head"><button id="close-book-detail" class="icon-button" type="button" aria-label="詳細を閉じる">×</button><span id="book-detail-category" class="category-pill"></span></div><h3 id="book-detail-word"></h3><p id="book-detail-reading"></p><p id="book-detail-meaning"></p><div class="detail-columns"><div><span>使う場面</span><p id="book-detail-scene"></p></div><div><span>例文</span><p id="book-detail-example"></p></div></div><p id="book-detail-note" class="detail-note"></p></div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./js/app.js?v=1"></script>
+</body>
+</html>
