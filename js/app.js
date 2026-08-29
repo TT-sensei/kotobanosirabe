@@ -11,7 +11,7 @@ import {
   BadgeManager
 } from 'https://tt-sensei.github.io/edu-components/index.js';
 import { soundList } from 'https://tt-sensei.github.io/sounds-recipe-/sounds.js';
-import { ALL_WORDS, GENRES, DIFFICULTIES } from './data/word-data.js';
+import { ALL_WORDS, GENRES, DIFFICULTIES } from './data/word-data.js?v=3';
 
 const ROUND_SIZE = 10;
 const LEARN_SIZE = 5;
