@@ -121,3 +121,5 @@ button:focus-visible, a:focus-visible { outline: 4px solid rgba(237,184,77,.75);
   .result-screen { padding-top: 88px; }
   .result-character { max-width: 110px; max-height: 100px; }
 }
+
+.mode-learn { --accent: var(--purple); }
