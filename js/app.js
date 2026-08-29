@@ -283,16 +283,16 @@ function buildQuestions(mode, words, source='normal') {
   return pool.take(ROUND_SIZE);
 }
 
-function reviewWordsForGenre() {
-  return state.reviewQueue.map((id) => ALL_WORDS.find((word) => word.id === id)).filter((word) => word && (!selectedGenre || word.genre === selectedGenre));
+function reviewWordsForGenre(allGenres = false) {
+  return state.reviewQueue.map((id) => ALL_WORDS.find((word) => word.id === id)).filter((word) => word && (allGenres || !selectedGenre || word.genre === selectedGenre));
 }
 
 function startQuiz(mode, options = {}) {
   setupSound();
   const genre = genreById(selectedGenre);
-  const words = options.reviewOnly ? reviewWordsForGenre() : genre.data.filter((word) => selectedDifficulty === 'all' || word.difficulty === selectedDifficulty);
+  const words = options.reviewOnly ? reviewWordsForGenre(Boolean(options.allGenres)) : genre.data.filter((word) => selectedDifficulty === 'all' || word.difficulty === selectedDifficulty);
   if (!words.length) { showToast(options.reviewOnly ? 'もういちど確かめることばはありません。' : 'この条件のことばがありません。'); return; }
-  session = {mode, reviewOnly:Boolean(options.reviewOnly), questions:buildQuestions(mode, words, options.reviewOnly ? 'review' : 'normal'), index:0, locked:false, score:new ScoreManager(), combo:new ComboManager({eventTarget:document, milestones:[3,5,10]}), stats:{newMeaning:0,newScene:0}, badges:[]};
+  session = {mode, reviewOnly:Boolean(options.reviewOnly), reviewAll:Boolean(options.allGenres), questions:buildQuestions(mode, words, options.reviewOnly ? 'review' : 'normal'), index:0, locked:false, score:new ScoreManager(), combo:new ComboManager({eventTarget:document, milestones:[3,5,10]}), stats:{newMeaning:0,newScene:0}, badges:[]};
   state.sessions += 1;
   saveState();
   screenManager.show('quiz');
@@ -462,7 +462,7 @@ function attachEvents() {
   document.querySelector('#hero-start').addEventListener('click', () => openGenre(selectedGenre));
   document.querySelector('#hero-review').addEventListener('click', () => {
     if (!state.reviewQueue.length) { showToast('間違えたことばは、まだありません。'); return; }
-    startQuiz('meaning', {reviewOnly:true});
+    startQuiz('meaning', {reviewOnly:true, allGenres:true});
   });
   document.querySelector('#today-open').addEventListener('click', () => {
     const todayIndex = Math.floor(Date.now() / 86400000) % ALL_WORDS.length;
@@ -481,7 +481,7 @@ function attachEvents() {
     dom.quizHint.textContent = question.hint;
     playSound('hint');
   });
-  dom.resultRetry.addEventListener('click', () => startQuiz(session.mode, {reviewOnly:session.reviewOnly}));
+  dom.resultRetry.addEventListener('click', () => startQuiz(session.mode, {reviewOnly:session.reviewOnly, allGenres:session.reviewAll}));
   dom.resultBook.addEventListener('click', showBook);
   dom.closeBookDetail.addEventListener('click', () => { dom.bookDetail.hidden = true; });
   document.addEventListener('keydown', (event) => {
@@ -497,4 +497,3 @@ document.addEventListener(EDU_EVENTS.STORAGE_ERROR, () => showToast('記録を�
 renderHome();
 attachEvents();
 screenManager.show('home');
-
