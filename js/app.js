@@ -66,6 +66,11 @@ let selectedBookFilter = 'all';
 let session = null;
 let audioContext = null;
 
+function showScreen(screenId) {
+  screenManager.show(screenId);
+  window.scrollTo({top:0, left:0, behavior:'auto'});
+}
+
 function defaultState() {
   return {schemaVersion:1, words:{}, reviewQueue:[], sessions:0, lastPlayedAt:null};
 }
@@ -213,7 +218,7 @@ function openGenre(genreId) {
   selectedGenre = genreId || selectedGenre;
   selectedDifficulty = 'all';
   renderGenreScreen();
-  screenManager.show('genre');
+  showScreen('genre');
 }
 
 function renderLearnCard() {
@@ -245,7 +250,7 @@ function startLearn(options = {}) {
   learnWords = options.single ? source.slice(0,1) : shuffle(source).slice(0, Math.min(LEARN_SIZE, source.length));
   learnIndex = 0;
   renderLearnCard();
-  screenManager.show('learn');
+  showScreen('learn');
 }
 
 function otherWords(word, amount) {
@@ -268,6 +273,8 @@ function makeQuestion(mode, word, sequence, source) {
   } else {
     question = {question:`「${word.word}」は、ここではどちらの意味？`, choices:[word.literalMeaning, word.figurativeMeaning], answer:word.figurativeMeaning, explanation:`文字どおりなら「${word.literalMeaning}」ですが、慣用句では「${word.figurativeMeaning}」という意味です。`, hint:'体の部分や物が、本当にその状態になるのか考えよう。'};
   }
+  // 表示側とChoiceQuestionの判定側に、同じシャッフル済み配列を渡す。
+  question.choices = shuffle([...new Set(question.choices)]);
   return {id:`${mode}-${word.id}-${sequence}`, type:'choice', mode, wordId:word.id, word, kind:def.label, ...question, source};
 }
 
@@ -295,7 +302,7 @@ function startQuiz(mode, options = {}) {
   session = {mode, reviewOnly:Boolean(options.reviewOnly), reviewAll:Boolean(options.allGenres), questions:buildQuestions(mode, words, options.reviewOnly ? 'review' : 'normal'), index:0, locked:false, score:new ScoreManager(), combo:new ComboManager({eventTarget:document, milestones:[3,5,10]}), stats:{newMeaning:0,newScene:0}, badges:[]};
   state.sessions += 1;
   saveState();
-  screenManager.show('quiz');
+  showScreen('quiz');
   renderQuizQuestion();
 }
 
@@ -394,7 +401,7 @@ function showResult() {
     playSound('badge');
   } else dom.resultBadge.hidden = true;
   dom.resultRetry.textContent = session.reviewOnly ? 'もう一度、復習する' : '同じクイズをもう一度';
-  screenManager.show('result');
+  showScreen('result');
 }
 
 function renderBookFilters() {
@@ -437,7 +444,7 @@ function openBookDetail(wordId) {
 function showBook() {
   renderBook();
   dom.bookDetail.hidden = true;
-  screenManager.show('book');
+  showScreen('book');
 }
 
 function attachEvents() {
@@ -451,9 +458,9 @@ function attachEvents() {
     const difficultyButton = event.target.closest('[data-difficulty]');
     if (difficultyButton) { selectedDifficulty = difficultyButton.dataset.difficulty; renderGenreScreen(); }
     const screenButton = event.target.closest('[data-screen]');
-    if (screenButton) { if (screenButton.dataset.screen === 'book') showBook(); else screenManager.show(screenButton.dataset.screen); }
+    if (screenButton) { if (screenButton.dataset.screen === 'book') showBook(); else showScreen(screenButton.dataset.screen); }
     const backButton = event.target.closest('[data-back]');
-    if (backButton) screenManager.show(backButton.dataset.back);
+    if (backButton) showScreen(backButton.dataset.back);
     const bookFilter = event.target.closest('[data-book-filter]');
     if (bookFilter) { selectedBookFilter = bookFilter.dataset.bookFilter; renderBook(); }
     const bookWord = event.target.closest('[data-book-word]');
@@ -496,4 +503,4 @@ function attachEvents() {
 document.addEventListener(EDU_EVENTS.STORAGE_ERROR, () => showToast('記録を一時的に保存できませんが、学習は続けられます。'));
 renderHome();
 attachEvents();
-screenManager.show('home');
+showScreen('home');
