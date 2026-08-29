@@ -20,6 +20,7 @@ const NAVI_ROOT = 'https://tt-sensei.github.io/navi-character-/assets/web/charac
 const BADGE_ROOT = 'https://tt-sensei.github.io/edu-assets/assets/web/badges/';
 
 const MODE_DEFS = {
+  learn: {label:'ことばを知る', title:'ことばカードで確かめよう', icon:'知', description:'読み、意味、例文、使う場面をカードで見ます。', key:'seen'},
   meaning: {label:'意味クイズ', title:'ことばの意味を選ぼう', icon:'？', description:'ことばの意味を、やさしい説明から選びます。', key:'meaning'},
   scene: {label:'場面クイズ', title:'場面に合うことばを選ぼう', icon:'場', description:'短い場面を読んで、ぴったりのことばを選びます。', key:'scene'},
   usage: {label:'使い方クイズ', title:'正しい使い方を選ぼう', icon:'使', description:'そのことばが自然に使われている文を選びます。', key:'usage'},
@@ -202,11 +203,12 @@ function renderGenreScreen() {
   const seen = genre.data.filter((word) => wordState(word.id).seen).length;
   dom.genreTitle.textContent = genre.label;
   dom.genreSummary.innerHTML = `<div class="genre-summary-icon ${genre.color}">${escapeHtml(genre.icon)}</div><div><p>${escapeHtml(genre.short)}</p><strong>${escapeHtml(genre.description)}</strong><small>見たことがある ${seen}語　·　しっかり理解 ${mastered}語 / ${genre.data.length}語</small></div>`;
-  const modes = ['meaning','scene','usage'];
+  const modes = ['learn','meaning','scene','usage'];
   if (genre.id === 'idiom') modes.push('literal');
   dom.modeGrid.innerHTML = modes.map((mode) => {
     const def = MODE_DEFS[mode];
-    return `<button class="mode-card mode-${mode}" type="button" data-mode="${mode}"><span class="mode-icon">${escapeHtml(def.icon)}</span><span class="mode-copy"><strong>${escapeHtml(def.label)}</strong><small>${escapeHtml(def.description)}</small></span><span class="mode-arrow">→</span></button>`;
+    const action = mode === 'learn' ? 'data-learn="true"' : `data-mode="${mode}"`;
+    return `<button class="mode-card mode-${mode}" type="button" ${action}><span class="mode-icon">${escapeHtml(def.icon)}</span><span class="mode-copy"><strong>${escapeHtml(def.label)}</strong><small>${escapeHtml(def.description)}</small></span><span class="mode-arrow">→</span></button>`;
   }).join('');
   dom.difficultyList.innerHTML = `<button class="difficulty-button ${selectedDifficulty === 'all' ? 'selected':''}" type="button" data-difficulty="all"><strong>ぜんぶ</strong><small>${genre.data.length}語から</small></button>${DIFFICULTIES.map((item) => `<button class="difficulty-button ${selectedDifficulty === item.id ? 'selected':''}" type="button" data-difficulty="${escapeHtml(item.id)}"><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small></button>`).join('')}`;
   const reviewWords = state.reviewQueue.map((id) => ALL_WORDS.find((word) => word.id === id)).filter((word) => word && word.genre === selectedGenre);
@@ -290,6 +292,19 @@ function buildQuestions(mode, words, source='normal') {
   return pool.take(ROUND_SIZE);
 }
 
+function buildReviewQuestions(words) {
+  const shuffledWords = shuffle(words);
+  const questions = [];
+  let sequence = 0;
+  while (questions.length < ROUND_SIZE) {
+    const word = shuffledWords[Math.floor(sequence / 2) % shuffledWords.length];
+    const mode = sequence % 2 === 0 ? 'meaning' : 'scene';
+    questions.push(makeQuestion(mode, word, sequence, 'review'));
+    sequence += 1;
+  }
+  return questions;
+}
+
 function reviewWordsForGenre(allGenres = false) {
   return state.reviewQueue.map((id) => ALL_WORDS.find((word) => word.id === id)).filter((word) => word && (allGenres || !selectedGenre || word.genre === selectedGenre));
 }
@@ -299,7 +314,9 @@ function startQuiz(mode, options = {}) {
   const genre = genreById(selectedGenre);
   const words = options.reviewOnly ? reviewWordsForGenre(Boolean(options.allGenres)) : genre.data.filter((word) => selectedDifficulty === 'all' || word.difficulty === selectedDifficulty);
   if (!words.length) { showToast(options.reviewOnly ? 'もういちど確かめることばはありません。' : 'この条件のことばがありません。'); return; }
-  session = {mode, reviewOnly:Boolean(options.reviewOnly), reviewAll:Boolean(options.allGenres), questions:buildQuestions(mode, words, options.reviewOnly ? 'review' : 'normal'), index:0, locked:false, score:new ScoreManager(), combo:new ComboManager({eventTarget:document, milestones:[3,5,10]}), stats:{newMeaning:0,newScene:0}, badges:[]};
+  const reviewOnly = Boolean(options.reviewOnly);
+  const questions = reviewOnly ? buildReviewQuestions(words) : buildQuestions(mode, words, 'normal');
+  session = {mode, reviewOnly, reviewAll:Boolean(options.allGenres), questions, index:0, locked:false, score:new ScoreManager(), combo:new ComboManager({eventTarget:document, milestones:[3,5,10]}), stats:{newMeaning:0,newScene:0}, badges:[]};
   state.sessions += 1;
   saveState();
   showScreen('quiz');
@@ -309,7 +326,8 @@ function startQuiz(mode, options = {}) {
 function renderQuizQuestion() {
   const question = session?.questions[session.index];
   if (!question) { showResult(); return; }
-  const def = MODE_DEFS[session.mode];
+  const questionMode = question.mode;
+  const def = MODE_DEFS[questionMode];
   session.locked = false;
   session.component = new ChoiceQuestion(question, {eventTarget:document, checker, shuffle:true});
   const word = question.word;
@@ -318,7 +336,7 @@ function renderQuizQuestion() {
   dom.quizProgressFill.style.width = `${((session.index + 1) / ROUND_SIZE) * 100}%`;
   dom.quizCombo.textContent = session.combo.getCurrent() ? `${session.combo.getCurrent()} COMBO` : 'まずは1問';
   dom.quizKind.textContent = def.label;
-  dom.quizScene.textContent = session.mode === 'scene' ? '場面を読んで考えよう' : session.mode === 'literal' ? 'そのままの意味と比べよう' : '';
+  dom.quizScene.textContent = questionMode === 'scene' ? '場面を読んで考えよう' : questionMode === 'literal' ? 'そのままの意味と比べよう' : '';
   dom.quizTitle.textContent = question.question;
   dom.quizHint.textContent = '';
   dom.answerArea.replaceChildren();
@@ -363,7 +381,7 @@ function showFeedback(question, isCorrect) {
 function handleCorrect(event) {
   if (!session || !session.locked || event.detail.question !== session.questions[session.index]) return;
   const question = event.detail.question;
-  const key = MODE_DEFS[session.mode].key;
+  const key = MODE_DEFS[question.mode].key;
   session.score.correct();
   session.combo.correct();
   if (key === 'meaning' && updateWord(question.word, 'meaning')) session.stats.newMeaning += 1;
@@ -453,6 +471,8 @@ function attachEvents() {
   document.addEventListener('click', (event) => {
     const genreButton = event.target.closest('[data-genre]');
     if (genreButton) openGenre(genreButton.dataset.genre);
+    const learnButton = event.target.closest('[data-learn]');
+    if (learnButton) startLearn();
     const modeButton = event.target.closest('[data-mode]');
     if (modeButton) startQuiz(modeButton.dataset.mode);
     const difficultyButton = event.target.closest('[data-difficulty]');
