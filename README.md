@@ -31,3 +31,19 @@ edu-kitの方針に沿い、HTML / CSS / Vanilla JavaScript、GitHub Pages、教
 - `edu-assets`：理解した語数の節目に獲得する日本語バッジ
 
 外部API、ログイン、データベース、ビルド環境は使いません。学習記録はブラウザのlocalStorageへ保存します。
+
+## 利用について
+
+学校・家庭での学習目的で無料で利用できます。
+
+このリポジトリのコードやオリジナル教材を、許可なく有料教材・有料サービス・販売商品として利用することはできません。問題データ、解説、例文、キャラクター等をまとめて再配布・販売することも許可していません。
+
+外部ライブラリ、フォント、画像、音源、その他の第三者素材には、それぞれの権利者・ライセンスの条件が適用されます。
+
+## License
+
+Software code and original educational content in this repository are licensed under the PolyForm Noncommercial License 1.0.0.
+
+https://polyformproject.org/licenses/noncommercial/1.0.0/
+
+Copyright © 2026 TT-sensei.
